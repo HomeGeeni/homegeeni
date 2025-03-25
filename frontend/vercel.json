@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "NPM_VERSION": "7.x"
+    }
+  }
+}
+
