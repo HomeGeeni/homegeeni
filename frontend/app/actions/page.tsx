@@ -13,9 +13,14 @@ import { useUIStateStore } from "@/lib/services/uiStateService"
 
 export default function ActionsPage() {
   const [activeTab, setActiveTab] = useState<"offers" | "visits" | "liked">("offers")
-  const { mode } = useModeStore()
+  const { mode, setMode } = useModeStore()
   const router = useRouter()
   const { openConfirmationDialog, setSelectedPropertyId, setPropertyDetailOpen } = useUIStateStore()
+
+  // Set mode to buyer when the page loads
+  useEffect(() => {
+    setMode("buyer")
+  }, [setMode])
 
   // Redirect if in seller mode
   useEffect(() => {
