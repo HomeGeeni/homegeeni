@@ -2,12 +2,15 @@
 import { Home, Building } from "lucide-react"
 import { useModeStore } from "@/lib/services/modeService"
 import { useUIStateStore } from "@/lib/services/uiStateService"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 export default function ModeToggle({ className = "" }: { className?: string }) {
-  const { mode, setMode } = useModeStore()
+  const { mode, setMode, canSwitchMode } = useModeStore()
   const { activeFloatingMenu, setActiveFloatingMenu } = useUIStateStore()
   const router = useRouter()
+  const pathname = usePathname()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   const toggleMenu = () => {
     if (activeFloatingMenu === "mode") {
@@ -18,6 +21,8 @@ export default function ModeToggle({ className = "" }: { className?: string }) {
   }
 
   const handleModeChange = (newMode: "buyer" | "seller") => {
+    if (!canSwitchMode(pathname, isMobile)) return
+    
     setMode(newMode)
     setActiveFloatingMenu("none")
 
@@ -27,6 +32,11 @@ export default function ModeToggle({ className = "" }: { className?: string }) {
     } else {
       router.push("/seller")
     }
+  }
+
+  // Don't render if mode switching is not allowed
+  if (!canSwitchMode(pathname, isMobile)) {
+    return null
   }
 
   return (

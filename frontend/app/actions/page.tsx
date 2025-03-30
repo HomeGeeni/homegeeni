@@ -8,11 +8,15 @@ import { properties } from "@/data/properties"
 import { userActions } from "@/data/properties"
 import { formatCurrency, formatDate } from "@/utils/format"
 import { useModeStore } from "@/lib/services/modeService"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useUIStateStore } from "@/lib/services/uiStateService"
 
 export default function ActionsPage() {
-  const [activeTab, setActiveTab] = useState<"offers" | "visits" | "liked">("offers")
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<"offers" | "visits" | "liked">(
+    (searchParams.get("tab") as "offers" | "visits" | "liked") || "offers"
+  )
+  const [isMobile, setIsMobile] = useState(false)
   const { mode, setMode } = useModeStore()
   const router = useRouter()
   const { openConfirmationDialog, setSelectedPropertyId, setPropertyDetailOpen } = useUIStateStore()
@@ -22,12 +26,29 @@ export default function ActionsPage() {
     setMode("buyer")
   }, [setMode])
 
+  // Check if we're on mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Redirect if in seller mode
   useEffect(() => {
     if (mode === "seller") {
       router.push("/seller")
     }
   }, [mode, router])
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", activeTab)
+    router.replace(`/actions?${params.toString()}`)
+  }, [activeTab, router, searchParams])
 
   // Get properties with active offers
   const propertiesWithOffers = properties.filter((property) =>
@@ -46,8 +67,15 @@ export default function ActionsPage() {
   const superLikedProperties = properties.filter((property) => userActions.superLikedProperties.includes(property.id))
 
   const handleViewProperty = (propertyId: string) => {
-    setSelectedPropertyId(propertyId)
-    setPropertyDetailOpen(true)
+    if (isMobile) {
+      // Preserve the current tab in the URL when navigating to property page
+      const params = new URLSearchParams(searchParams.toString())
+      params.set("tab", activeTab)
+      router.push(`/property/${propertyId}?from=actions&tab=${activeTab}`)
+    } else {
+      setSelectedPropertyId(propertyId)
+      setPropertyDetailOpen(true)
+    }
   }
 
   const handleRescheduleVisit = (propertyId: string) => {

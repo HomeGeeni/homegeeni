@@ -2,13 +2,18 @@
 
 import { Home, Building } from "lucide-react"
 import { useModeStore } from "@/lib/services/modeService"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 export default function MobileModeToggle() {
-  const { mode, setMode } = useModeStore()
+  const { mode, setMode, canSwitchMode } = useModeStore()
   const router = useRouter()
+  const pathname = usePathname()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   const handleModeChange = (newMode: "buyer" | "seller") => {
+    if (!canSwitchMode(pathname, isMobile)) return
+    
     setMode(newMode)
 
     // Redirect to the appropriate home page
@@ -17,6 +22,11 @@ export default function MobileModeToggle() {
     } else {
       router.push("/seller")
     }
+  }
+
+  // Don't render if mode switching is not allowed
+  if (!canSwitchMode(pathname, isMobile)) {
+    return null
   }
 
   return (

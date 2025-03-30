@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { properties } from "@/data/properties"
 import PropertyDetail from "@/components/property-detail"
 import { ArrowLeft } from "lucide-react"
@@ -8,9 +8,21 @@ import { ArrowLeft } from "lucide-react"
 export default function PropertyPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const propertyId = params.id as string
 
   const property = properties.find((p) => p.id === propertyId)
+
+  const handleBack = () => {
+    const from = searchParams.get("from")
+    const tab = searchParams.get("tab")
+    
+    if (from === "actions" && tab) {
+      router.push(`/actions?tab=${tab}`)
+    } else {
+      router.back()
+    }
+  }
 
   if (!property) {
     return (
@@ -24,7 +36,7 @@ export default function PropertyPage() {
   return (
     <div className="container mx-auto p-4 md:p-6">
       <button
-        onClick={() => router.back()}
+        onClick={handleBack}
         className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6"
       >
         <ArrowLeft size={20} />
