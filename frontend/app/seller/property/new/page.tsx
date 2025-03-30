@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Check } from "lucide-react"
@@ -11,11 +10,10 @@ import { useModeStore } from "@/lib/services/modeService"
 export default function NewPropertyPage() {
   const router = useRouter()
   const { mode } = useModeStore()
-  
-  // Redirect if in buyer mode
+
   useEffect(() => {
-    if (mode === 'buyer') {
-      router.push('/buyer')
+    if (mode === "buyer") {
+      router.push("/buyer")
     }
   }, [mode, router])
 
@@ -28,7 +26,9 @@ export default function NewPropertyPage() {
   const [baths, setBaths] = useState("")
   const [squareFeet, setSquareFeet] = useState("")
   const [yearBuilt, setYearBuilt] = useState("")
-  const [propertyType, setPropertyType] = useState<"Single Family" | "Condo" | "Townhouse" | "Multi-Family">("Single Family")
+  const [propertyType, setPropertyType] = useState<
+    "Single Family" | "Condo" | "Townhouse" | "Multi-Family"
+  >("Single Family")
   const [description, setDescription] = useState("")
   const [features, setFeatures] = useState<string[]>([])
   const [newFeature, setNewFeature] = useState("")
@@ -93,12 +93,10 @@ export default function NewPropertyPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false)
       setIsSuccess(true)
 
-      // Redirect to seller dashboard after 2 seconds
       setTimeout(() => {
         router.push("/seller")
       }, 2000)
@@ -117,13 +115,11 @@ export default function NewPropertyPage() {
           <h1 className="text-2xl font-bold text-neutral-900 mb-6">List a New Property</h1>
 
           {isSuccess ? (
-            <div className="bg-success/10 text-success p-4 rounded-lg flex items-start">
+            <div className="bg-green-100 text-green-800 p-4 rounded-lg flex items-start">
               <Check size={24} className="mr-3 flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-lg">Property Listed Successfully!</h3>
-                <p>
-                  Your property has been listed successfully. You'll be redirected to your dashboard in a moment.
-                </p>
+                <p>You’ll be redirected to your dashboard in a moment.</p>
               </div>
             </div>
           ) : (
@@ -170,5 +166,30 @@ export default function NewPropertyPage() {
                       type="text"
                       value={zipCode}
                       onChange={(e) => setZipCode(e.target.value)}
-                      className="w-full px-4 py-\
+                      className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500"
+                      placeholder="78701"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
 
+              {/* Add other sections here (price, beds, baths, etc.) */}
+              {/* You can continue building the form similar to Property Location */}
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 disabled:opacity-50"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Property"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
