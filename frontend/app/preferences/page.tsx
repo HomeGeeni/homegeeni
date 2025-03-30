@@ -21,8 +21,13 @@ export default function PreferencesPage() {
   const [tooltips, setTooltips] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const { mode } = useModeStore()
+  const { mode, setMode } = useModeStore()
   const router = useRouter()
+
+  // Set mode to buyer when the page loads
+  useEffect(() => {
+    setMode("buyer")
+  }, [setMode])
 
   // Redirect if in seller mode
   useEffect(() => {

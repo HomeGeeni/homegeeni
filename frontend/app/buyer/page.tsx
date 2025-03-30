@@ -31,15 +31,13 @@ export default function BuyerPage() {
 
   const isMobile = useMediaQuery("(max-width: 768px)")
   const { setPropertyDetailOpen, setSelectedPropertyId } = useUIStateStore()
-  const { mode } = useModeStore()
+  const { mode, setMode } = useModeStore()
   const router = useRouter()
 
-  // Redirect if in seller mode
+  // Set mode to buyer when the page loads
   useEffect(() => {
-    if (mode === "seller") {
-      router.push("/seller")
-    }
-  }, [mode, router])
+    setMode("buyer")
+  }, [setMode])
 
   const handleSwipe = (direction: "left" | "right" | "up") => {
     if (isSwipeAnimating) return
@@ -166,7 +164,7 @@ export default function BuyerPage() {
   )
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="bg-neutral-50">
       {/* Mobile View */}
       {isMobile && (
         <div className="p-4">

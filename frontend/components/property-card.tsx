@@ -9,6 +9,7 @@ import type { Property } from "@/data/properties"
 import { formatCurrency } from "@/utils/format"
 import Tooltip from "./tooltip"
 import { useUIStateStore } from "@/lib/services/uiStateService"
+import { useRouter } from "next/navigation"
 
 interface PropertyCardProps {
   property: Property
@@ -25,6 +26,7 @@ export default function PropertyCard({
   onClick,
   className = "",
 }: PropertyCardProps) {
+  const router = useRouter()
   const [startX, setStartX] = useState(0)
   const [startY, setStartY] = useState(0)
   const [offsetX, setOffsetX] = useState(0)
@@ -103,8 +105,11 @@ export default function PropertyCard({
   const handleCardClick = () => {
     if (onClick) {
       onClick()
+    } else if (isMobile) {
+      // Navigate to property details page on mobile
+      router.push(`/property/${property.id}`)
     } else {
-      // Open property detail modal
+      // Open property detail modal on desktop
       setSelectedPropertyId(property.id)
       setPropertyDetailOpen(true)
     }
@@ -332,8 +337,12 @@ export default function PropertyCard({
           className="text-primary-600 text-sm font-medium hover:underline flex items-center"
           onClick={(e) => {
             e.stopPropagation()
-            setSelectedPropertyId(property.id)
-            setPropertyDetailOpen(true)
+            if (isMobile) {
+              router.push(`/property/${property.id}`)
+            } else {
+              setSelectedPropertyId(property.id)
+              setPropertyDetailOpen(true)
+            }
           }}
         >
           View details

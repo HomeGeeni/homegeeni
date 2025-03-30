@@ -12,7 +12,7 @@ import { useUIStateStore } from "@/lib/services/uiStateService"
 
 export default function SellerDashboardPage() {
   const [activeTab, setActiveTab] = useState<"properties" | "offers" | "visits">("properties")
-  const { mode } = useModeStore()
+  const { mode, setMode } = useModeStore()
   const router = useRouter()
   const { openConfirmationDialog } = useUIStateStore()
 
