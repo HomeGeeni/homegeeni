@@ -17,8 +17,11 @@ export const useModeStore = create<ModeState>()(
       mode: "buyer",
       setMode: (mode) => set({ mode }),
       canSwitchMode: (path: string, isMobile: boolean) => {
-        // Allow mode switching on buyer and seller pages in mobile view
-        return isMobile && (path === "/buyer" || path === "/seller")
+        // Allow mode switching on desktop view
+        if (!isMobile) return true
+        
+        // On mobile, only allow switching on buyer and seller pages
+        return path === "/buyer" || path === "/seller"
       },
     }),
     {
