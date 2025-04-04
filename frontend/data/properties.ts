@@ -46,9 +46,24 @@ export interface Property {
     appraisalContingency: "Waived" | { limit: number }
     additionalInfo: string
     status: "Pending" | "Accepted" | "Rejected" | "Countered"
+    buyerName?: string
   }[]
   liked?: boolean
   superLiked?: boolean
+  seller?: string
+  visits?: {
+    id: string
+    date: string
+    startTime: string
+    endTime: string
+    visitorName: string
+    message?: string
+  }[]
+  status?: "Active" | "Pending" | "Sold" | "Off Market"
+  stats?: {
+    views: number
+    saved: number
+  }
 }
 
 export const properties: Property[] = [
