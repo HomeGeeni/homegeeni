@@ -31,6 +31,7 @@ export default function SellerDashboardPage() {
     return (property.offers || []).map((offer) => ({
       ...offer,
       property,
+      buyerName: offer.buyerName || "John Doe",
     }))
   })
 
@@ -380,7 +381,11 @@ export default function SellerDashboardPage() {
                             </div>
                             <div>
                               <p className="text-neutral-500 text-sm">Appraisal Contingency</p>
-                              <p className="font-medium">{offer.appraisalContingency}</p>
+                              <p className="font-medium">
+                                {typeof offer.appraisalContingency === "string" 
+                                  ? offer.appraisalContingency 
+                                  : `Up to ${offer.appraisalContingency.limit}`}
+                              </p>
                             </div>
                             <div>
                               <p className="text-neutral-500 text-sm">Buyer</p>
