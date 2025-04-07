@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import mapboxgl from "mapbox-gl"
 import "mapbox-gl/dist/mapbox-gl.css"
 import type { Property } from "@/data/properties"
@@ -29,9 +29,47 @@ export default function PropertyMap({
 }: PropertyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
-  const markers = useRef<mapboxgl.Marker[]>([])
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
+  const [isMoving, setIsMoving] = useState(false)
+  const markers = useRef<mapboxgl.Marker[]>([])
+  const moveEndTimeout = useRef<NodeJS.Timeout | null>(null)
+
+  // Effect to handle marker visibility
+  useEffect(() => {
+    if (!isMapLoaded) return
+
+    const updateMarkerVisibility = (visible: boolean) => {
+      markers.current.forEach(marker => {
+        const element = marker.getElement()
+        if (visible) {
+          element.style.transition = "opacity 0.3s ease"
+          element.style.opacity = "1"
+        } else {
+          element.style.transition = "none"
+          element.style.opacity = "0"
+        }
+      })
+    }
+
+    if (isMoving) {
+      updateMarkerVisibility(false)
+    } else {
+      // Only show markers after the delay when movement ends
+      if (moveEndTimeout.current) {
+        clearTimeout(moveEndTimeout.current)
+      }
+      moveEndTimeout.current = setTimeout(() => {
+        updateMarkerVisibility(true)
+      }, 1000)
+    }
+
+    return () => {
+      if (moveEndTimeout.current) {
+        clearTimeout(moveEndTimeout.current)
+      }
+    }
+  }, [isMoving, isMapLoaded])
 
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) {
@@ -40,23 +78,29 @@ export default function PropertyMap({
     }
 
     try {
-      // Initialize map
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/streets-v12",
-        center: [-97.7431, 30.2672], // Austin, TX coordinates
+        center: [-97.7431, 30.2672],
         zoom: 12,
+        renderWorldCopies: false,
       })
 
-      // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl(), "top-right")
 
-      // Handle map load
       map.current.on("load", () => {
         setIsMapLoaded(true)
       })
 
-      // Handle map errors
+      // Handle map movement events
+      map.current.on("movestart", () => {
+        setIsMoving(true)
+      })
+
+      map.current.on("moveend", () => {
+        setIsMoving(false)
+      })
+
       map.current.on("error", (e) => {
         console.error("Mapbox error:", e)
         setMapError("Failed to load map. Please try again later.")
@@ -66,8 +110,10 @@ export default function PropertyMap({
       setMapError("Failed to initialize map. Please check your Mapbox access token.")
     }
 
-    // Cleanup
     return () => {
+      if (moveEndTimeout.current) {
+        clearTimeout(moveEndTimeout.current)
+      }
       if (map.current) {
         map.current.remove()
         map.current = null
@@ -87,16 +133,17 @@ export default function PropertyMap({
     properties.forEach((property) => {
       const isSelected = selectedProperty?.id === property.id
       const markerColor = property.superLiked
-        ? "#FF6B6B" // accent color for super liked
+        ? "#FF6B6B"
         : property.liked
-        ? "#4F46E5" // primary-600 for liked
-        : "#3B82F6" // primary-500 for regular
+        ? "#4F46E5"
+        : "#3B82F6"
 
       const el = document.createElement("div")
       el.className = "w-10 h-10 rounded-full shadow-lg flex items-center justify-center border-2 border-white"
       el.style.backgroundColor = markerColor
       el.style.transform = isSelected ? "scale(1.25)" : "scale(1)"
       el.style.transition = "transform 0.2s ease"
+      el.style.opacity = "1" // Start with markers visible
 
       const priceText = document.createElement("span")
       priceText.className = "text-xs font-bold text-white"
