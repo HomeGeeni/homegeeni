@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Calendar, Send, Check, Clock, Home } from "lucide-react"
@@ -11,7 +11,7 @@ import { useModeStore } from "@/lib/services/modeService"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useUIStateStore } from "@/lib/services/uiStateService"
 
-export default function ActionsPage() {
+function ActionsPageContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<"offers" | "visits" | "liked">(
     (searchParams.get("tab") as "offers" | "visits" | "liked") || "offers"
@@ -257,7 +257,7 @@ export default function ActionsPage() {
                             </div>
                           )}
 
-                          {offer.status === "Pending" && (
+                          {offer.status !== "Accepted" && (
                             <div className="mt-4 flex justify-end">
                               <button
                                 className="text-primary-600 font-medium hover:underline"
@@ -535,6 +535,14 @@ export default function ActionsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ActionsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActionsPageContent />
+    </Suspense>
   )
 }
 
